@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "name": "project2",
     "version": "1.0.0",
     "description": "",
@@ -22,3 +23,28 @@
     }
     
   }
+=======
+  "name": "project2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Logan",
+  "contributors": [
+    "Will and Cesar"
+  ],
+  "url": "https://github.com/loganfarner/webdev-rest",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.51.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6"
+  }
+  
+}
+>>>>>>> webdev3/main
