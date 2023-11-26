@@ -109,6 +109,7 @@ app.get('/incidents', (req, res) => {
 
 // PUT request handler for new crime incident
 app.put('/new-incident', (req, res) => {
+    /**
     console.log(req.body); // uploaded data
 
     const { case_number, date, time, code, incident, police_grid, neighborhood_number, block } = req.body;
@@ -131,10 +132,74 @@ app.put('/new-incident', (req, res) => {
         console.error(error);
         res.status(500).send('Internal Server Error');
     });
+    */
+
+    //const query = {case_number: req.query.case_number, date: req.query.date, time: req.query.time, code: 
+    //    req.query.code, incident: req.query.incident, police_grid: req.query.police_grid, neighborhood_number: 
+    //    req.query.neighborhood_number, block: req.query.block} 
+    console.log(req.body); // uploaded data
+    const {
+        case_number,
+        date,
+        time,
+        code,
+        incident,
+        police_grid,
+        neighborhood_number,
+        block,
+    } = req.body;
+    
+    const incidentObject = {
+        [case_number]: {
+            date,
+            time,
+            code,
+            incident,
+            police_grid,
+            neighborhood_number,
+            block,
+        },
+    };
+    
+    const incidentData = [
+        case_number,
+        date,
+        time,
+        code,
+        incident,
+        police_grid,
+        neighborhood_number,
+        block,
+    ];
+    
+    db.get("SELECT COUNT(*) AS count FROM Incidents WHERE case_number=?", [case_number], (err, { count }) => {
+        if (err) {
+            console.log("Error checking incident existence: " + err);
+            res.status(500).send('Internal Server Error');
+        } else {
+            if (count === 0) {
+                db.run("INSERT INTO Incidents (case_number, date_time, code, incident, police_grid, neighborhood_number, block) VALUES (?, ?, ?, ?, ?, ?, ?)", incidentData, (err) => {
+                    if (err) {
+                        console.log("Error entering incident: " + err);
+                        res.status(500).send('Internal Server Error');
+                    } else {
+                        res.status(200).send('Success!');
+                    }
+                });
+            } else {
+                res.status(500).send('Error: incident already exists');
+            }
+        }
+    });
+    
+    
+
 });
+  
 
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
+    /*
     console.log(req.body); // uploaded data
 
     const { case_number } = req.body;
@@ -156,6 +221,29 @@ app.delete('/remove-incident', (req, res) => {
         console.error(error);
         res.status(500).send('Internal Server Error');
     });
+    */
+   var { case_number } = req.body;
+   db.get('SELECT COUNT(*) AS count FROM Incidents WHERE case_number = ?', [case_number], (err, {count}) => {
+        if(err) {
+            console.log("There was an error " +err );
+            res.status(500).send('Internal Server Error');
+        }
+        else {
+            if(count === 0) {
+                res.status(500).send('The case does not exist');
+            }
+            else{
+                db.run('DELETE FROM Incidents WHERE case_number = ?', [case_number], (err) => {
+                    if(err) {
+                        res.status(500).send('There was an error');
+                    }
+                    else{
+                        res.status(200).send('You successfully deleted the incident');
+                    }
+                });
+            }
+        }
+    }); 
 });
 
 /********************************************************************
