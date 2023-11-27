@@ -96,39 +96,27 @@ app.get('/neighborhoods', (req, res) => {
 // GET request handler for crime incidents
 app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
-    
-    let query = 'SELECT case_number, date_time as date, code, incident, police_grid, neighborhood_number, block FROM Incidents'; // adjust the limit as needed
+
+    let query = 'SELECT case_number, date_time as date, code, incident, police_grid, neighborhood_number, block FROM Incidents WHERE code > 0';
     let incidents = [];
     let where = 0;
     if ( req.query.neighborhood != undefined){
-        query = query + ' WHERE neighborhood_number IN ('+req.query.neighborhood+')';
+        query = query + ' AND neighborhood_number IN ('+req.query.neighborhood+')';
         where++;
     };
-    if ( req.query.code != undefined && where == 0){
-        query = query + ' WHERE code IN ('+req.query.code+')';
-        where++;
-    } else if (req.query.code != undefined) {
+    if (req.query.code != undefined) {
         query = query + ' AND code IN ('+req.query.code+')';
     };
 
-    if ( req.query.grid != undefined && where == 0){
-        query = query + ' WHERE police_grid IN ('+req.query.grid+')';
-        where++;
-    } else if ( req.query.grid != undefined ){
+    if ( req.query.grid != undefined ){
         query = query + ' AND police_grid IN ('+req.query.grid+')';
     };
 
-    if ( req.query.start_date != undefined && where == 0){
-        query = query + ' WHERE date_time > '+req.query.start_date;
-        where++;
-    } else if ( req.query.start_date != undefined ){
+    if ( req.query.start_date != undefined ){
         query = query + ' AND date_time > '+req.query.start_date;
     };
 
-    if ( req.query.end_date != undefined && where == 0){
-        query = query + ' WHERE date_time <'+req.query.end_date;
-        where++;
-    } else if ( req.query.end_date != undefined ){
+    if ( req.query.end_date != undefined ){
         query = query + ' AND date_time >'+req.query.end_date;
     };
 
