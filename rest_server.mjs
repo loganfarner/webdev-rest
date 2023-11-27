@@ -60,11 +60,12 @@ function dbRun(query, params) {
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
-
-    const query = 'SELECT code, incident_type as type FROM Codes ORDER BY code';
-    const codes = [];
-    dbSelect(query, codes)
-
+    let query = 'SELECT code, incident_type as type FROM Codes';
+    if ( req.query.code != undefined){
+        query = query + ' WHERE code IN ('+req.query.code+')';
+    };
+    query = query + ' ORDER BY code';
+    dbSelect(query)
     .then ((rows) => {
         res.status(200).type('json').json(rows);
     })
@@ -76,11 +77,13 @@ app.get('/codes', (req, res) => {
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
+    let query = 'SELECT neighborhood_number as id, neighborhood_name as name FROM Neighborhoods';
+    if ( req.query.id != undefined){
+        query = query + ' WHERE neighborhood_number IN ('+req.query.id+')';
+    };
+    query = query + ' ORDER BY id';
 
-    const query = 'SELECT neighborhood_number as id, neighborhood_name as name FROM Neighborhoods ORDER BY id';
-    const neighborhoods = [];
-
-    dbSelect(query, neighborhoods)
+    dbSelect(query)
     .then ((rows) => {
         res.status(200).type('json').json(rows);
     })
@@ -94,9 +97,48 @@ app.get('/neighborhoods', (req, res) => {
 app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     
-    const query = 'SELECT case_number, date_time as date, time, code, incident, police_grid, neighborhood_number, block FROM Incidents ORDER BY date_time DESC LIMIT 1000'; // adjust the limit as needed
-    const incidents = [];
+    let query = 'SELECT case_number, date_time as date, code, incident, police_grid, neighborhood_number, block FROM Incidents'; // adjust the limit as needed
+    let incidents = [];
+    let where = 0;
+    if ( req.query.neighborhood != undefined){
+        query = query + ' WHERE neighborhood_number IN ('+req.query.neighborhood+')';
+        where++;
+    };
+    if ( req.query.code != undefined && where == 0){
+        query = query + ' WHERE code IN ('+req.query.code+')';
+        where++;
+    } else if (req.query.code != undefined) {
+        query = query + ' AND code IN ('+req.query.code+')';
+    };
 
+    if ( req.query.grid != undefined && where == 0){
+        query = query + ' WHERE police_grid IN ('+req.query.grid+')';
+        where++;
+    } else if ( req.query.grid != undefined ){
+        query = query + ' AND police_grid IN ('+req.query.grid+')';
+    };
+
+    if ( req.query.start_date != undefined && where == 0){
+        query = query + ' WHERE date_time > '+req.query.start_date;
+        where++;
+    } else if ( req.query.start_date != undefined ){
+        query = query + ' AND date_time > '+req.query.start_date;
+    };
+
+    if ( req.query.end_date != undefined && where == 0){
+        query = query + ' WHERE date_time <'+req.query.end_date;
+        where++;
+    } else if ( req.query.end_date != undefined ){
+        query = query + ' AND date_time >'+req.query.end_date;
+    };
+
+    if ( req.query.limit != undefined){
+        query = query + ' ORDER BY date_time DESC LIMIT '+req.query.limit;
+    } else {
+        query = query + ' ORDER BY date_time DESC LIMIT 500';
+    };
+    
+    console.log(query);
     dbSelect(query, incidents)
     .then ((rows) => {
         res.status(200).type('json').json(rows);
