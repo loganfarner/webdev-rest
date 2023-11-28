@@ -1,5 +1,5 @@
 {
-  "name": "project2",
+  "name": "Project 3 - RESTful Server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,9 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "Logan",
+  "author": "Logan Farner",
   "contributors": [
-    "Will and Cesar"
+    "Will Haldine and Cesar Gonzalez"
   ],
   "url": "https://github.com/loganfarner/webdev-rest",
   "license": "ISC",
