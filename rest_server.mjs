@@ -96,13 +96,10 @@ app.get('/neighborhoods', (req, res) => {
 // GET request handler for crime incidents
 app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
+    let query = 'SELECT case_number, strftime("%Y-%m-%d", date_time) as date, strftime("%H:%M:%S", date_time) as time, code, incident, police_grid, neighborhood_number, block FROM Incidents WHERE code > -100'; // adjust the limit as needed
     
-    let query = 'SELECT case_number, strftime("%Y-%m-%d", date_time) as date, strftime("%H:%M:%S", date_time) as time, code, incident, police_grid, neighborhood_number, block FROM Incidents'; // adjust the limit as needed
-    let incidents = [];
-    let where = 0;
     if ( req.query.neighborhood != undefined){
         query = query + ' AND neighborhood_number IN ('+req.query.neighborhood+')';
-        where++;
     };
     if (req.query.code != undefined) {
         query = query + ' AND code IN ('+req.query.code+')';
@@ -113,11 +110,11 @@ app.get('/incidents', (req, res) => {
     };
 
     if ( req.query.start_date != undefined ){
-        query = query + ' AND date_time > '+req.query.start_date;
+        query = query + ' AND date_time > "'+req.query.start_date+'"';
     };
 
     if ( req.query.end_date != undefined ){
-        query = query + ' AND date_time >'+req.query.end_date;
+        query = query + ' AND date_time < "'+req.query.end_date+'"';
     };
 
     if ( req.query.limit != undefined){
@@ -125,9 +122,15 @@ app.get('/incidents', (req, res) => {
     } else {
         query = query + ' ORDER BY date_time DESC LIMIT 500';
     };
+
+    if ( query.includes("AND")){
+        query = query.replace('code > -100 AND ','');
+    } else {
+        query = query.replace(' WHERE code > -100', '');
+    }
     
-    console.log(query);
-    dbSelect(query, incidents)
+    //console.log(query);
+    dbSelect(query)
     .then ((rows) => {
         res.status(200).type('json').json(rows);
     })
