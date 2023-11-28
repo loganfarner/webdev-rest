@@ -179,40 +179,27 @@ app.put('/new-incident', (req, res) => {
     //const query = {case_number: req.query.case_number, date: req.query.date, time: req.query.time, code: 
     //    req.query.code, incident: req.query.incident, police_grid: req.query.police_grid, neighborhood_number: 
     //    req.query.neighborhood_number, block: req.query.block} 
+
+    //curl -X PUT "http://localhost:8000/new-incident" -H "Content-Type: application/json" -d "{\"case_number\": \"22222222\", \"date\": \"2023-11-01T04:52:00\", \"code\": \"1234\", \"incident\": \"Proactive Police Visit\", \"police_grid\": \"49\", \"neighborhood_number\": \"21\", \"block\": \"32\"}
+    
     console.log(req.body); // uploaded data
-    const {
-        case_number,
-        date,
-        time,
-        code,
-        incident,
-        police_grid,
-        neighborhood_number,
-        block,
-    } = req.body;
+    const {case_number, date, time, code, incident, police_grid, neighborhood_number, block} = req.body;
+
     
-    const incidentObject = {
-        [case_number]: {
-            date,
-            time,
-            code,
-            incident,
-            police_grid,
-            neighborhood_number,
-            block,
-        },
-    };
+    const incidentData = [case_number, date, time, code, incident, police_grid, neighborhood_number,block];
+
+    // const incidentObject = {
+    //     [case_number]: {
+    //         date,
+    //         time,
+    //         code,
+    //         incident,
+    //         police_grid,
+    //         neighborhood_number,
+    //         block,
+    //     },
+    // };
     
-    const incidentData = [
-        case_number,
-        date,
-        time,
-        code,
-        incident,
-        police_grid,
-        neighborhood_number,
-        block,
-    ];
     
     db.get("SELECT COUNT(*) AS count FROM Incidents WHERE case_number=?", [case_number], (err, { count }) => {
         if (err) {
@@ -233,9 +220,6 @@ app.put('/new-incident', (req, res) => {
             }
         }
     });
-    
-    
-
 });
   
 
@@ -264,6 +248,7 @@ app.delete('/remove-incident', (req, res) => {
         res.status(500).send('Internal Server Error');
     });
     */
+   //curl -X DELETE "http://localhost:8000/remove-incident" -H "Content-Type: application/json" -d "{\"case_number\": \"23200821\"}"
    var { case_number } = req.body;
    db.get('SELECT COUNT(*) AS count FROM Incidents WHERE case_number = ?', [case_number], (err, {count}) => {
         if(err) {
