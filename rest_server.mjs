@@ -119,7 +119,7 @@ app.get('/incidents', (req, res) => {
     if (req.query.limit != undefined) {
         query = query + ' ORDER BY date_time DESC LIMIT '+req.query.limit;
     } else {
-        query = query + ' ORDER BY date_time DESC LIMIT 500';
+        query = query + ' ORDER BY date_time DESC LIMIT 1000';
     };
 
     if (query.includes("AND")) {
