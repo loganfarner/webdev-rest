@@ -4,6 +4,8 @@ import { reactive, ref, onMounted } from 'vue'
 let crime_url = ref('');
 let dialog_err = ref(false);
 let searchLocation = ref('');
+let locationInputRef = ref(null);
+let updateTimer = null;
 let map = reactive(
     {
   leaflet: null,
@@ -40,30 +42,32 @@ let map = reactive(
 );
 
 // Vue callback for once <template> HTML has been added to web page
-onMounted(() => {
+    onMounted(() => {
   // Create Leaflet map (set bounds and valied zoom levels)
-    map.leaflet = L.map('leafletmap').setView([map.center.lat, map.center.lng], map.zoom);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        minZoom: 11,
-        maxZoom: 18
-    }).addTo(map.leaflet);
-    map.leaflet.setMaxBounds([[44.883658, -93.217977], [45.008206, -92.993787]]);
+  map.leaflet = L.map('leafletmap').setView([map.center.lat, map.center.lng], map.zoom);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    minZoom: 11,
+    maxZoom: 18
+  }).addTo(map.leaflet);
+  map.leaflet.setMaxBounds([[44.883658, -93.217977], [45.008206, -92.993787]]);
+  map.leaflet.on("dragend", updateInputFromMap);
+  map.leaflet.on("zoomend", updateInputFromMap);
 
-    // Get boundaries for St. Paul neighborhoods
-    let district_boundary = new L.geoJson();
-    district_boundary.addTo(map.leaflet);
-    fetch('data/StPaulDistrictCouncil.geojson')
+  // Get boundaries for St. Paul neighborhoods
+  let district_boundary = new L.geoJson();
+  district_boundary.addTo(map.leaflet);
+  fetch('data/StPaulDistrictCouncil.geojson')
     .then((response) => {
-        return response.json();
+      return response.json();
     })
     .then((result) => {
-        result.features.forEach((value) => {
-            district_boundary.addData(value);
-        });
+      result.features.forEach((value) => {
+        district_boundary.addData(value);
+      });
     })
     .catch((error) => {
-        console.log('Error:', error);
+      console.log('Error:', error);
     });
 });
 
@@ -90,8 +94,42 @@ function closeDialog() {
 }
 
 // Function to update input box text when map is panned/zoomed
-function updateInput() {
-  searchLocation.value = `Lat: ${map.center.lat.toFixed(6)}, Lng: ${map.center.lng.toFixed(6)}`;
+async function updateInput() {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${map.center.lat}&lon=${map.center.lng}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const address = data.display_name;
+
+    searchLocation.value = address;
+  } catch (error) {
+    console.error('Error fetching address:', error);
+  }
+}
+
+function updateInputFromMap() {
+  // Clear existing timer
+  if (updateTimer) {
+    clearTimeout(updateTimer);
+  }
+
+  // Set a new timer to update the input box text once the movement (drag or zoom) has ended
+  updateTimer = setTimeout(() => {
+    if (locationInputRef.value) {
+      // Get the updated center after drag or zoom
+      const newCenter = map.leaflet.getCenter();
+      map.center.lat = newCenter.lat;
+      map.center.lng = newCenter.lng;
+
+      updateInput();
+    }
+  }, 500);
 }
 
 // Function to search for location and update the map
@@ -128,15 +166,15 @@ async function searchAndSetLocation() {
         <div id="leafletmap" class="cell auto"></div>
       </div>
       <div class="grid-x grid-padding-x">
-  <label>Enter Location:</label>
-  <input v-model="searchLocation" @change="searchAndSetLocation" />
-  <button class="button" @click="searchAndSetLocation">Go</button>
-</div>
+        <label>Enter Location:</label>
+        <input v-model="searchLocation" @change="searchAndSetLocation" ref="locationInputRef"/>
+        <button class="button" @click="searchAndSetLocation">Go</button>
+      </div>
 
     </div>
   </template>
   
-<style>
+  <style>
 #rest-dialog {
   width: 20rem;
   margin-top: 1rem;
