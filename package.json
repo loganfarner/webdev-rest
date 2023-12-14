@@ -1,24 +1,26 @@
 {
-  "name": "Project 3 - RESTful Server",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "Logan Farner",
-  "contributors": [
-    "Will Haldine and Cesar Gonzalez"
-  ],
-  "url": "https://github.com/loganfarner/webdev-rest",
-  "license": "ISC",
-  "devDependencies": {
-    "eslint": "^8.51.0"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "sqlite3": "^5.1.6"
-  }
-
+    "name": "Project 4 - Single Page Application",
+    "description": "RESTful Web Server and Single Page Application",
+    "version": "1.0.0",
+    "author": {
+        "name": "Logan Farner, Cesar Gonzalez, Will Haldine",
+        "email": "farn8796@stthomas.edu"
+    },
+    "contributors": [
+    ],
+    "repository": {},
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "sqlite3": "^5.1.6",
+        "vue": "^3.3.4"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^4.4.0",
+        "vite": "^4.4.11"
+    }
 }
