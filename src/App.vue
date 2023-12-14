@@ -143,6 +143,7 @@ async function searchAndSetLocation() {
     const lat = parseFloat(location.lat);
     const lng = parseFloat(location.lon);
 
+    // Clamp input values if lat/long is outside of St. Paul's bounding box
     map.center.lat = Math.min(map.bounds.nw.lat, Math.max(map.bounds.se.lat, lat));
     map.center.lng = Math.min(map.bounds.se.lng, Math.max(map.bounds.nw.lng, lng));
 
