@@ -120,10 +120,9 @@ function updateInputFromMap() {
     clearTimeout(updateTimer);
   }
 
-  // Set a new timer to update the input box text once the movement (drag or zoom) has ended
+  // Set a new timer to update the input text box
   updateTimer = setTimeout(() => {
     if (locationInputRef.value) {
-      // Get the updated center after drag or zoom
       const newCenter = map.leaflet.getCenter();
       map.center.lat = newCenter.lat;
       map.center.lng = newCenter.lng;
@@ -157,9 +156,8 @@ async function searchAndSetLocation() {
       map.center.lng = Math.min(map.bounds.se.lng, Math.max(map.bounds.nw.lng, lng));
 
       map.leaflet.setView([map.center.lat, map.center.lng], 16);
-      errorMessage.value = ''; // Clear any previous error messages
+      errorMessage.value = '';
     } else {
-      // Display an error or provide feedback that the location is outside the allowed bounds
       errorMessage.value = 'Error: must enter location within bounds';
     }
   }
@@ -184,6 +182,7 @@ async function searchAndSetLocation() {
       <label>Enter Location:</label>
       <input v-model="searchLocation" @change="searchAndSetLocation" ref="locationInputRef" />
       <button class="button" @click="searchAndSetLocation">Go</button>
+      <p class="dialog-error" v-if="errorMessage">{{ errorMessage }}</p>
     </div>
   </div>
 </template>
